@@ -35,8 +35,8 @@ const CONFIG = {
     "Sening kuning Toshkentda boshlanadi. O’sha payt menda hali 17-noyabr, kechki soat sakkiz bo’ladi.",
     "Orada to’rt soat, to’rt ming kilometr bor. Uzoq. Lekin bu vaqtincha."
   ],
-  shahar1: { nom: "Dubnica", zona: "Europe/Bratislava" },
-  shahar2: { nom: "Toshkent", zona: "Asia/Tashkent" },
+  shahar1: { nom: "Yevropa", bayroq: "eu", zona: "Europe/Bratislava" },   // bayroq: "eu", "uz" yoki ""
+  shahar2: { nom: "Toshkent", bayroq: "uz", zona: "Asia/Tashkent" },
   km: "4 000 km",
 
   yillar: [
@@ -146,6 +146,8 @@ const CONFIG = {
   .clock { text-align: center; flex: 0 0 auto; }
   .clock b { display: block; font-weight: 300; font-size: 44px; line-height: 1; font-variant-numeric: tabular-nums lining-nums; }
   .clock span { font-size: 14px; letter-spacing: .26em; text-transform: uppercase; color: var(--soft); }
+  .clock .flag { display: block; line-height: 0; margin: 14px 0 10px; }
+  .clock .flag svg { width: 30px; height: 20px; border-radius: 2px; box-shadow: 0 0 0 1px rgba(47,42,37,.14), 0 2px 5px -2px rgba(47,42,37,.3); }
   .arc { display: block; width: 100%; height: auto; margin: 0 0 2em; }
   .arc path { fill: none; stroke: var(--line); stroke-width: 1.2; stroke-dasharray: 2 6; stroke-linecap: round; }
   .arc circle { fill: var(--accent); }
@@ -314,8 +316,41 @@ const CONFIG = {
   var m = $("masofa");
   if (C.masofa[0]) m.insertBefore(para(m, C.masofa[0]), m.firstChild);
   C.masofa.slice(1).forEach(function (t) { para(m, t); });
-  $("n1").textContent = C.shahar1.nom;
-  $("n2").textContent = C.shahar2.nom;
+  // bayroqlar chizib qo'yilgan (emoji emas), shuning uchun har qanday telefonda bir xil ko'rinadi
+  function yulduzcha(cx, cy, R, rang) {
+    var d = "";
+    for (var k = 0; k < 10; k++) {
+      var rr = k % 2 ? R * 0.4 : R, a = -Math.PI / 2 + k * Math.PI / 5;
+      d += (cx + rr * Math.cos(a)).toFixed(2) + "," + (cy + rr * Math.sin(a)).toFixed(2) + " ";
+    }
+    return '<polygon fill="' + rang + '" points="' + d + '"/>';
+  }
+  var BAYROQ = {
+    eu: function () {
+      var s = '<rect width="30" height="20" fill="#003399"/>';
+      for (var k = 0; k < 12; k++) s += yulduzcha(15 + 6.3 * Math.sin(k * Math.PI / 6), 10 - 6.3 * Math.cos(k * Math.PI / 6), 1.15, "#ffcc00");
+      return s;
+    },
+    uz: function () {
+      var s = '<rect width="30" height="20" fill="#fff"/><rect width="30" height="6.2" fill="#0099b5"/>' +
+        '<rect y="6.2" width="30" height=".55" fill="#ce1126"/><rect y="13.25" width="30" height=".55" fill="#ce1126"/>' +
+        '<rect y="13.8" width="30" height="6.2" fill="#1eb53a"/>' +
+        '<circle cx="5" cy="3.1" r="2.1" fill="#fff"/><circle cx="5.8" cy="3.1" r="2.1" fill="#0099b5"/>';
+      [[3, 1.5], [4, 3.1], [5, 4.7]].forEach(function (row) {
+        for (var k = 0; k < row[0]; k++) s += yulduzcha(13.8 - k * 1.6, row[1], 0.6, "#fff");
+      });
+      return s;
+    }
+  };
+  [["n1", C.shahar1], ["n2", C.shahar2]].forEach(function (p) {
+    var el = $(p[0]);
+    if (BAYROQ[p[1].bayroq]) {
+      var f = document.createElement("i"); f.className = "flag";
+      f.innerHTML = '<svg viewBox="0 0 30 20" aria-hidden="true">' + BAYROQ[p[1].bayroq]() + '</svg>';
+      el.appendChild(f);
+    }
+    el.appendChild(document.createTextNode(p[1].nom));
+  });
   $("km").textContent = C.km;
 
   function vaqt(zona) {
