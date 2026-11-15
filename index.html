@@ -60,7 +60,10 @@ const CONFIG = {
   ovozMatn: "Ovozimni eshit",
 
   yakun: "Tug’ilgan kuning muborak bo’lsin,",
-  ps: ""                           // ixtiyoriy P.S.
+  duo: "Alloh umringga baraka, yo’lingga yengillik bersin.",
+  telegram: "",                    // Telegram username (@ belgisisiz). To'ldirilsa, oxirida "Javob yoz" tugmasi chiqadi.
+  javobMatn: "Javob yoz",
+  ps: ""                         // ixtiyoriy P.S.
 };
 /* ==================================== */
 </script>
@@ -203,6 +206,9 @@ const CONFIG = {
   .js .sign.r { opacity: 1; transform: none; clip-path: inset(-20% 100% -20% 0); transition: clip-path 2.2s ease .5s; }
   .js .sign.r.on { clip-path: inset(-20% 0 -20% 0); }
   .arc .go { fill: var(--accent); }
+  .end .duo { font-size: 21px; color: var(--soft); margin: -0.4em 0 2em; }
+  .reply { margin: 3.4em 0 0; }
+  .reply a { text-decoration: none; margin: 0; display: inline-block; }
   .ps { margin-top: 3em; font-size: 18px; color: var(--soft); }
 
   @media (prefers-reduced-motion: reduce) {
@@ -276,8 +282,10 @@ const CONFIG = {
 
   <section class="end">
     <p class="wish r"><span id="yakun"></span><br><span class="ism"></span>.</p>
+    <p class="duo r" id="duo" hidden></p>
     <button class="voice r" id="ovoz" type="button" hidden></button>
     <div><div class="sign r" id="imzo"></div></div>
+    <p class="reply r" id="javob" hidden><a class="voice" id="javoblink" rel="noopener"></a></p>
     <p class="ps r" id="ps" hidden></p>
   </section>
 </main>
@@ -422,6 +430,12 @@ const CONFIG = {
   }
 
   $("yakun").textContent = C.yakun;
+  if (C.duo) { $("duo").textContent = C.duo; $("duo").hidden = false; }
+  if (C.telegram) {
+    $("javoblink").textContent = C.javobMatn;
+    $("javoblink").href = "https://t.me/" + C.telegram.replace(/^@/, "");
+    $("javob").hidden = false;
+  }
   if (C.kimdan) $("imzo").textContent = C.kimdan; else $("imzo").remove();
   if (C.ps) { $("ps").textContent = "P.S. " + C.ps; $("ps").hidden = false; }
 
