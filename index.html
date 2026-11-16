@@ -63,6 +63,10 @@ const CONFIG = {
   duo: "Alloh umringga baraka, yo’lingga yengillik bersin.",
   telegram: "MuX1ddin_Sharofiddinov",                  // Telegram username (@ belgisisiz). To'ldirilsa, oxirida "Javob yoz" tugmasi chiqadi.
   javobMatn: "Javob yoz",
+  // video: YouTube'dagi parcha, start/oxir soniyalarda. id bo'sh bo'lsa bo'lim chiqmaydi.
+  video: { id: "gQ-277tFXlI", start: 0, oxir: 94 },
+  videoOldin: "Bitta parcha qo’shib qo’ydim. Bir yarim daqiqa, oxirigacha ko’r.",
+  videoKeyin: "Balki bizdagi vaziyat ham shunga o’xshar. Hammasi yaxshi bo’ladi.",
   ps: ""                         // ixtiyoriy P.S.
 };
 /* ==================================== */
@@ -200,6 +204,18 @@ const CONFIG = {
   .after { opacity: 0; transition: opacity 1.8s ease 1.4s; font-style: italic; }
   .out ~ .after { opacity: 1; }
 
+  /* video parcha */
+  .film { margin: 1.6em 0 1.8em; position: relative; aspect-ratio: 16 / 9; background: #1b1712; border-radius: 3px; overflow: hidden;
+    box-shadow: 0 1px 2px rgba(60,45,30,.18), 0 16px 34px -14px rgba(60,45,30,.45); }
+  .film button { all: unset; position: absolute; inset: 0; cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+  .film img { width: 100%; height: 100%; object-fit: cover; display: block; filter: sepia(.25) saturate(.85) brightness(.82); }
+  .film .play { position: absolute; left: 50%; top: 50%; width: 62px; height: 62px; margin: -31px 0 0 -31px; border-radius: 50%;
+    background: rgba(243,235,221,.92); box-shadow: 0 4px 18px rgba(0,0,0,.35); }
+  .film .play::after { content: ""; position: absolute; left: 25px; top: 19px; border-style: solid; border-width: 12px 0 12px 19px; border-color: transparent transparent transparent var(--ink); }
+  .film .len { position: absolute; right: 10px; bottom: 8px; font-size: 14px; letter-spacing: .08em; color: #f3ebdd; text-shadow: 0 1px 3px rgba(0,0,0,.6); }
+  .film iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+  .film-note { font-style: italic; font-size: 23px; line-height: 1.45; }
+
   /* yakun */
   .end { text-align: center; padding-bottom: 22vh; }
   .end .wish { font-size: 27px; font-style: italic; line-height: 1.35; margin-bottom: 1.6em; }
@@ -281,6 +297,12 @@ const CONFIG = {
   </section>
 
   <section id="qoshimcha" hidden></section>
+
+  <section id="videobolim" hidden>
+    <p class="r" id="videooldin"></p>
+    <div class="film r" id="film"></div>
+    <p class="film-note r" id="videokeyin"></p>
+  </section>
 
   <section class="end">
     <p class="wish r"><span id="yakun"></span><br><span class="ism"></span>.</p>
@@ -433,6 +455,27 @@ const CONFIG = {
     document.body.classList.add("dim");
     setTimeout(function () { document.body.classList.remove("dim"); }, 6000);
   });
+
+  // video parcha: avval faqat rasm, bosilgandagina YouTube yuklanadi
+  if (C.video && C.video.id) {
+    var V = C.video, film = $("film");
+    $("videooldin").textContent = C.videoOldin;
+    $("videokeyin").textContent = C.videoKeyin;
+    var dur = V.oxir - V.start, mm = Math.floor(dur / 60), ss = ("0" + (dur % 60)).slice(-2);
+    film.innerHTML = '<button type="button" aria-label="Videoni ko’rish">' +
+      '<img alt="" loading="lazy" src="https://i.ytimg.com/vi/' + V.id + '/hqdefault.jpg">' +
+      '<span class="play"></span><span class="len">' + mm + ":" + ss + '</span></button>';
+    film.querySelector("button").addEventListener("click", function () {
+      var f = document.createElement("iframe");
+      f.src = "https://www.youtube-nocookie.com/embed/" + V.id + "?start=" + V.start + "&end=" + V.oxir +
+        "&autoplay=1&playsinline=1&rel=0&modestbranding=1";
+      f.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen";
+      f.allowFullscreen = true;
+      f.title = "Video";
+      film.innerHTML = ""; film.appendChild(f);
+    });
+    $("videobolim").hidden = false;
+  }
 
   // rasm + xotira + eshik
   var q = $("qoshimcha");
